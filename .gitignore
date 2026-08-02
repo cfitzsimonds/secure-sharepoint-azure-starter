@@ -1,0 +1,47 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+lib/
+temp/
+release/
+coverage/
+*.tgz
+
+# SPFx
+sharepoint/solution/*.sppkg
+config/package-solution.json.bak
+
+# Azure Functions
+.azure/
+bin/
+obj/
+
+# Local settings and secrets
+local.settings.json
+.env
+.env.*
+!.env.example
+*.local.json
+
+# Certificates
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+
+# Editors
+.vscode/
+.idea/
+
+# Operating systems
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
