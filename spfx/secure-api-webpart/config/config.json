@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "secure-api-profile-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/secureApiProfile/SecureApiProfileWebPart.js",
+          "manifest": "./src/webparts/secureApiProfile/SecureApiProfileWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SecureApiProfileWebPartStrings": "lib/webparts/secureApiProfile/loc/{locale}.js"
+  }
+}

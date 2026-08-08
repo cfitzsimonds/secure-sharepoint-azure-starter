@@ -1,0 +1,46 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "secure-api-webpart-client-side-solution",
+    "id": "355a3b70-4402-414e-853a-2e23761b949e",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.23.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "secure-api-webpart description"
+      },
+      "longDescription": {
+        "default": "secure-api-webpart description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "secure-api-webpart Feature",
+        "description": "The feature that activates elements of the secure-api-webpart solution.",
+        "id": "0933712d-d339-4391-9100-c775a02c945b",
+        "version": "1.0.0.0"
+      }
+    ],
+    "webApiPermissionRequests": [
+      {
+        "resource": "Secure SharePoint Azure API",
+        "scope": "access_as_user"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/secure-api-webpart.sppkg"
+  }
+}

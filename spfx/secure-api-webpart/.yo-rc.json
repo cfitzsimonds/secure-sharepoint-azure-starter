@@ -1,0 +1,19 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "useGulp": false,
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.15.0",
+    "sdksVersions": {},
+    "version": "1.23.2",
+    "libraryName": "secure-api-webpart",
+    "libraryId": "355a3b70-4402-414e-853a-2e23761b949e",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "secure-api-webpart",
+    "solutionShortDescription": "secure-api-webpart description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}
