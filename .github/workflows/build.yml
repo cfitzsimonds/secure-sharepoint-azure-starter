@@ -62,9 +62,3 @@ jobs:
 
       - name: Build SPFx solution
         run: npm run build
-
-      - name: Bundle SPFx solution
-        run: npx gulp bundle --ship
-
-      - name: Package SPFx solution
-        run: npx gulp package-solution --ship
