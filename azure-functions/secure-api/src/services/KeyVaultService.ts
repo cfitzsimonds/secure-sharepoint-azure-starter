@@ -36,4 +36,20 @@ export class KeyVaultService {
 
     return secret.value;
   }
+
+  public async getApiClientSecret(): Promise<string> {
+    const secretName =
+      process.env.ENTRA_CLIENT_SECRET_NAME ??
+      "SecureApiClientSecret";
+
+    const secret = await this.client.getSecret(secretName);
+
+    if (!secret.value) {
+      throw new Error(
+        `The Key Vault secret '${secretName}' does not contain a value.`
+      );
+    }
+
+    return secret.value;
+  }
 }

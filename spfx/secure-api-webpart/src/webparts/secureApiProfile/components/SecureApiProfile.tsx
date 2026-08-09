@@ -4,6 +4,7 @@ import styles from "./SecureApiProfile.module.scss";
 import { ISecureApiProfileProps } from "./ISecureApiProfileProps";
 import { ISecureApiProfileState } from "./ISecureApiProfileState";
 import { SecureApiService } from "../services/SecureApiService";
+import { IGraphProfileResponse } from "../models/IGraphProfileResponse";
 
 export default class SecureApiProfile
   extends React.Component<
@@ -15,12 +16,20 @@ export default class SecureApiProfile
     super(props);
 
     this.state = {
-      isLoading: false
+      isLoading: false,
+      isGraphLoading: false
     };
   }
 
   public render(): React.ReactElement<ISecureApiProfileProps> {
-    const { isLoading, response, error } = this.state;
+    const {
+      isLoading,
+      response,
+      error,
+      isGraphLoading,
+      graphResponse,
+      graphError
+    } = this.state;
 
     return (
       <section className={styles.secureApiProfile}>
@@ -79,6 +88,100 @@ export default class SecureApiProfile
             </dl>
           </div>
         )}
+
+        <button
+          type="button"
+          className={styles.primaryButton}
+          disabled={this.state.isGraphLoading}
+          onClick={this.loadGraphProfile}
+        >
+          {
+            this.state.isGraphLoading
+              ? "Calling Microsoft Graph..."
+              : "Call Microsoft Graph"
+          }
+        </button>
+
+        {this.state.graphError && (
+          <div className={styles.error}>
+            <strong>Graph request failed</strong>
+            <p>{this.state.graphError}</p>
+          </div>
+        )}
+
+        {this.state.graphResponse && (
+          <div className={styles.result}>
+
+            <h3>
+              Microsoft Graph request succeeded
+            </h3>
+
+            <dl>
+
+              <dt>Display name</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .displayName
+                }
+              </dd>
+
+              <dt>User principal name</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .userPrincipalName
+                }
+              </dd>
+
+              <dt>Email</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .mail ?? "Not available"
+                }
+              </dd>
+
+              <dt>Job title</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .jobTitle ?? "Not available"
+                }
+              </dd>
+
+              <dt>Department</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .department ?? "Not available"
+                }
+              </dd>
+
+              <dt>Graph object ID</dt>
+              <dd>
+                {
+                  this.state
+                    .graphResponse
+                    .user
+                    .id
+                }
+              </dd>
+
+            </dl>
+
+          </div>
+        )}
       </section>
     );
   }
@@ -112,6 +215,44 @@ export default class SecureApiProfile
       this.setState({
         isLoading: false,
         error: message
+      });
+    }
+  };
+
+  private loadGraphProfile = async (): Promise<void> => {
+    this.setState({
+      isGraphLoading: true,
+      graphResponse: undefined,
+      graphError: undefined
+    });
+
+    try {
+
+      const service =
+        new SecureApiService(
+          this.props.context,
+          this.props.apiApplicationIdUri,
+          this.props.apiBaseUrl
+        );
+
+      const graphResponse =
+        await service.getGraphProfile();
+
+      this.setState({
+        isGraphLoading: false,
+        graphResponse
+      });
+
+    } catch (error: unknown) {
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
+
+      this.setState({
+        isGraphLoading: false,
+        graphError: message
       });
     }
   };

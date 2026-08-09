@@ -14,7 +14,8 @@
   "dependencies": {
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.13.1",
-    "@azure/keyvault-secrets": "^4.11.2"
+    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/msal-node": "^5.5.0"
   },
   "devDependencies": {
     "@types/node": "18.x",
