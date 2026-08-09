@@ -36,7 +36,9 @@
     "webApiPermissionRequests": [
       {
         "resource": "Secure SharePoint Azure API",
-        "scope": "access_as_user"
+        "scope": "access_as_user",
+        "appId": "5cd7db95-0ddd-443d-8a4d-dc55974f6d68",
+        "replyUrl": "https://wffhz.sharepoint.com"
       }
     ]
   },

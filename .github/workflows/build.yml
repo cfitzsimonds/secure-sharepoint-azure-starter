@@ -1,0 +1,70 @@
+name: Build and Validate
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  azure-functions:
+    name: Build Azure Functions
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: azure-functions/secure-api
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: azure-functions/secure-api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Azure Functions
+        run: npm run build
+
+  spfx:
+    name: Build SPFx
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: spfx/secure-api-webpart
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: spfx/secure-api-webpart/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build SPFx solution
+        run: npm run build
+
+      - name: Bundle SPFx solution
+        run: npx gulp bundle --ship
+
+      - name: Package SPFx solution
+        run: npx gulp package-solution --ship
