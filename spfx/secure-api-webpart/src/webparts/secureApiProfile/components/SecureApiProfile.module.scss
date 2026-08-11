@@ -26,6 +26,8 @@
   cursor: pointer;
   color: "[theme:white, default:#ffffff]";
   background: "[theme:themePrimary, default:#0078d4]";
+  margin-right: 12px;
+  margin-bottom: 16px;
 
   &:disabled {
     cursor: default;

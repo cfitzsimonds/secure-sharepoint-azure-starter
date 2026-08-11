@@ -17,7 +17,8 @@ export default class SecureApiProfile
 
     this.state = {
       isLoading: false,
-      isGraphLoading: false
+      isGraphLoading: false,
+      isSiteLoading: false
     };
   }
 
@@ -182,9 +183,176 @@ export default class SecureApiProfile
 
           </div>
         )}
+
+        <button
+          type="button"
+          className={styles.primaryButton}
+          disabled={
+            this.state.isSiteLoading
+          }
+          onClick={
+            this.loadCurrentSite
+          }
+        >
+          {
+            this.state.isSiteLoading
+              ? "Loading SharePoint site..."
+              : "Get current SharePoint site"
+          }
+        </button>
+
+        {this.state.siteError && (
+
+          <div className={styles.error}>
+
+            <strong>
+              SharePoint site request failed
+            </strong>
+
+            <p>
+              {this.state.siteError}
+            </p>
+
+          </div>
+
+        )}
+
+
+        {this.state.siteResponse && (
+
+          <div className={styles.result}>
+
+            <h3>
+              Current SharePoint site retrieved
+            </h3>
+
+            <dl>
+
+              <dt>
+                Site name
+              </dt>
+
+              <dd>
+                {
+                  this.state
+                    .siteResponse
+                    .site
+                    .displayName
+                }
+              </dd>
+
+
+              <dt>
+                Graph site ID
+              </dt>
+
+              <dd>
+                {
+                  this.state
+                    .siteResponse
+                    .site
+                    .id
+                }
+              </dd>
+
+
+              <dt>
+                Site URL
+              </dt>
+
+              <dd>
+                {
+                  this.state
+                    .siteResponse
+                    .site
+                    .webUrl
+                }
+              </dd>
+
+
+              <dt>
+                Description
+              </dt>
+
+              <dd>
+                {
+                  this.state
+                    .siteResponse
+                    .site
+                    .description
+                    ?? "Not available"
+                }
+              </dd>
+
+
+              <dt>
+                Created
+              </dt>
+
+              <dd>
+                {
+                  this.state
+                    .siteResponse
+                    .site
+                    .createdDateTime
+                    ?? "Not available"
+                }
+              </dd>
+
+            </dl>
+
+          </div>
+
+        )}
       </section>
     );
   }
+
+  private loadCurrentSite =
+  async (): Promise<void> => {
+
+    this.setState({
+      isSiteLoading: true,
+      siteResponse: undefined,
+      siteError: undefined
+    });
+
+
+    try {
+
+      const service =
+        new SecureApiService(
+          this.props.context,
+          this.props.apiApplicationIdUri,
+          this.props.apiBaseUrl
+        );
+
+
+      const siteResponse =
+        await service
+          .getCurrentSite();
+
+
+      this.setState({
+        isSiteLoading: false,
+        siteResponse
+      });
+
+
+    } catch (error: unknown) {
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
+
+
+      this.setState({
+        isSiteLoading: false,
+        siteError: message
+      });
+    }
+  };
 
   private loadSecureProfile = async (): Promise<void> => {
     this.setState({

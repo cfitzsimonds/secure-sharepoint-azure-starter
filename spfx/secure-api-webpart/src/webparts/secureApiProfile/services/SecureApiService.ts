@@ -6,6 +6,7 @@ import {
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { ISecureProfileResponse } from "../models/ISecureProfileResponse";
 import {IGraphProfileResponse} from "../models/IGraphProfileResponse";
+import { IGraphSiteResponse } from "../models/IGraphSiteResponse";
 
 export class SecureApiService {
   private readonly context: WebPartContext;
@@ -97,6 +98,103 @@ export class SecureApiService {
     }
 
     return await response.json() as IGraphProfileResponse;
+  }
+
+  public async getCurrentSite():
+    Promise<IGraphSiteResponse> {
+
+    /*
+    * SharePoint gives us the absolute
+    * URL of the site containing the web part.
+    *
+    * Example:
+    *
+    * https://contoso.sharepoint.com/sites/HR
+    */
+
+    const siteUrl =
+      new URL(
+        this.context.pageContext.web.absoluteUrl
+      );
+
+
+    /*
+    * Example:
+    *
+    * contoso.sharepoint.com
+    */
+
+    const hostname =
+      siteUrl.hostname;
+
+
+    /*
+    * Example:
+    *
+    * /sites/HR
+    */
+
+    const sitePath =
+      siteUrl.pathname;
+
+
+    const client:
+      AadHttpClient =
+        await this.context
+          .aadHttpClientFactory
+          .getClient(
+            this.apiApplicationIdUri
+          );
+
+
+    const correlationId =
+      this.createCorrelationId();
+
+
+    const requestUrl =
+      `${this.apiBaseUrl}/api/graph/site` +
+      `?hostname=${encodeURIComponent(hostname)}` +
+      `&sitePath=${encodeURIComponent(sitePath)}`;
+
+
+    const response:
+      HttpClientResponse =
+        await client.get(
+
+          requestUrl,
+
+          AadHttpClient
+            .configurations
+            .v1,
+
+          {
+            headers: {
+
+              Accept:
+                "application/json",
+
+              "x-correlation-id":
+                correlationId
+            }
+          }
+        );
+
+
+    if (!response.ok) {
+
+      const responseText =
+        await response.text();
+
+
+      throw new Error(
+        `Graph site request failed. ` +
+        `Status: ${response.status}. ` +
+        `Correlation ID: ${correlationId}. ` +
+        `Response: ${responseText}`
+      );
+    }
+
+    return await response.json() as IGraphSiteResponse;
   }
 
   private createCorrelationId(): string {
