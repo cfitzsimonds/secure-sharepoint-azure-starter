@@ -14,6 +14,15 @@ import {
   GraphSite
 } from "../models/GraphSite";
 
+import {
+ GraphDrive
+} from "../models/GraphDrive";
+
+interface GraphCollectionResponse<T> {
+ value: T[];
+ "@odata.nextLink"?: string;
+}
+
 export class GraphService {
 
   private readonly keyVaultService:
@@ -190,5 +199,36 @@ export class GraphService {
       graphUrl,
       incomingAccessToken
     );
+  }
+
+  /**
+  * Retrieve the document libraries
+  * for a SharePoint site.
+  */
+  public async getSiteDrives(
+  incomingAccessToken: string,
+  siteId: string
+  ): Promise<GraphDrive[]> {
+  if (!siteId) {
+    throw new Error(
+      "A Microsoft Graph site ID is required."
+    );
+  }
+  const encodedSiteId =
+    encodeURIComponent(siteId);
+  const graphUrl =
+    `https://graph.microsoft.com/v1.0/sites/` +
+    `${encodedSiteId}/drives` +
+    "?$select=id,name,description,webUrl," +
+    "driveType,createdDateTime,lastModifiedDateTime," +
+    "createdBy,lastModifiedBy";
+  const result =
+    await this.graphGet<
+      GraphCollectionResponse<GraphDrive>
+  >(
+      graphUrl,
+      incomingAccessToken
+    );
+  return result.value ?? [];
   }
 }
