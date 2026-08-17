@@ -81,4 +81,26 @@
       color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
     }
   }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  th,
+  td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #dddddd;
+    vertical-align: top;
+  }
+
+  th {
+    font-weight: 600;
+  }
+
+  td:last-child {
+    overflow-wrap: anywhere;
+  }
 }

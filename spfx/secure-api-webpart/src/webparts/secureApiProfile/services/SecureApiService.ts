@@ -7,6 +7,7 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { ISecureProfileResponse } from "../models/ISecureProfileResponse";
 import {IGraphProfileResponse} from "../models/IGraphProfileResponse";
 import { IGraphSiteResponse } from "../models/IGraphSiteResponse";
+import { IGraphDrivesResponse } from "../models/IGraphDrivesResponse";
 
 export class SecureApiService {
   private readonly context: WebPartContext;
@@ -195,6 +196,62 @@ export class SecureApiService {
     }
 
     return await response.json() as IGraphSiteResponse;
+  }
+
+  public async getSiteDrives(
+    siteId: string
+    ): Promise<IGraphDrivesResponse> {
+    if (!siteId) {
+      throw new Error(
+        "A Microsoft Graph site ID is required."
+      );
+    }
+
+    const client:
+      AadHttpClient =
+        await this.context
+          .aadHttpClientFactory
+          .getClient(
+            this.apiApplicationIdUri
+          );
+
+    const correlationId =
+      this.createCorrelationId();
+
+    const requestUrl =
+      `${this.apiBaseUrl}/api/graph/drives` +
+      `?siteId=${encodeURIComponent(siteId)}`;
+
+    const response:
+      HttpClientResponse =
+        await client.get(
+          requestUrl,
+          AadHttpClient
+            .configurations
+            .v1,
+          {
+            headers: {
+              Accept:
+                "application/json",
+              "x-correlation-id":
+                correlationId
+            }
+          }
+        );
+
+    if (!response.ok) {
+      const responseText =
+        await response.text();
+
+      throw new Error(
+        `Graph drives request failed. ` +
+        `Status: ${response.status}. ` +
+        `Correlation ID: ${correlationId}. ` +
+        `Response: ${responseText}`
+      );
+    }
+
+    return await response.json() as IGraphDrivesResponse;
   }
 
   private createCorrelationId(): string {

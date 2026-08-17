@@ -18,7 +18,8 @@ export default class SecureApiProfile
     this.state = {
       isLoading: false,
       isGraphLoading: false,
-      isSiteLoading: false
+      isSiteLoading: false,
+      isDrivesLoading: false
     };
   }
 
@@ -304,12 +305,213 @@ export default class SecureApiProfile
           </div>
 
         )}
+
+        <button
+          type="button"
+          className={
+            styles.primaryButton
+          }
+          disabled={
+            this.state
+              .isDrivesLoading
+          }
+          onClick={
+            this.loadDocumentLibraries
+          }
+          >
+          {
+            this.state
+              .isDrivesLoading
+              ? "Loading libraries..."
+              : "Get document libraries"
+          }
+        </button>
+
+        {this.state.drivesError && (
+
+          <div className={styles.error}>
+            <strong>
+              Document libraries request failed
+            </strong>
+            <p>
+              {this.state.drivesError}
+            </p>
+          </div>
+        )}
+
+        {this.state.drivesResponse && (
+          <div className={styles.result}>
+          <h3>
+              Document libraries retrieved
+          </h3>
+
+          <p>
+              {
+                this.state
+                  .drivesResponse
+                  .message
+              }
+          </p>
+
+            {
+              this.state
+                .drivesResponse
+                .drives
+                .length === 0
+                ? (
+          <p>
+                    No document libraries were returned.
+          </p>
+                )
+                : (
+          <table>
+          <thead>
+          <tr>
+          <th>
+                          Library
+          </th>
+          <th>
+                          Type
+          </th>
+          <th>
+                          Last modified
+          </th>
+          <th>
+                          Drive ID
+          </th>
+          </tr>
+          </thead>
+
+          <tbody>
+                      {
+                        this.state
+                          .drivesResponse
+                          .drives
+                          .map(
+                            drive => (
+          <tr
+                                key={
+          drive.id
+                                }
+          >
+          <td>
+                                  {
+                                    drive.webUrl
+                                      ? (
+          <a
+                                          href={
+                                            drive.webUrl
+                                          }
+                                          target="_blank"
+                                          rel="noreferrer"
+          >
+                                          {
+                                            drive.name
+                                          }
+          </a>
+                                      )
+                                      : drive.name
+                                  }
+          </td>
+
+          <td>
+                                  {
+                                    drive.driveType
+                                    ?? "Not available"
+                                  }
+          </td>
+
+          <td>
+                                  {
+                                    drive.lastModifiedDateTime
+                                    ?? "Not available"
+                                  }
+          </td>
+
+          <td>
+                                  {
+          drive.id
+                                  }
+          </td>
+          </tr>
+                            )
+                          )
+                      }
+          </tbody>
+          </table>
+                )
+            }
+          </div>
+        )}
+
       </section>
     );
   }
 
+  private loadDocumentLibraries =
+    async (): Promise<void> => {
+    this.setState({
+      isDrivesLoading: true,
+      drivesResponse:
+        undefined,
+      drivesError:
+        undefined
+    });
+
+    try {
+      const service =
+        new SecureApiService(
+          this.props.context,
+          this.props.apiApplicationIdUri,
+          this.props.apiBaseUrl
+        );
+
+      /*
+        * STEP 1
+        *
+        * Resolve the current SharePoint
+        * site through Microsoft Graph.
+        */
+      const siteResponse =
+        await service
+          .getCurrentSite();
+
+      /*
+        * STEP 2
+        *
+        * Use the Graph site ID to
+        * retrieve the document libraries.
+        */
+      const drivesResponse =
+        await service
+          .getSiteDrives(
+            siteResponse.site.id
+          );
+
+      this.setState({
+        isDrivesLoading:
+          false,
+        drivesResponse
+      });
+
+    } catch (error: unknown) {
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
+
+      this.setState({
+        isDrivesLoading:
+          false,
+        drivesError:
+          message
+      });
+    }
+  };
+
   private loadCurrentSite =
-  async (): Promise<void> => {
+    async (): Promise<void> => {
 
     this.setState({
       isSiteLoading: true,
