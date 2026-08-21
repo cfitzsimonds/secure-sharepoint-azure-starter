@@ -15,8 +15,12 @@ import {
 } from "../models/GraphSite";
 
 import {
- GraphDrive
+  GraphDrive
 } from "../models/GraphDrive";
+
+import {
+ GraphDriveItem
+} from "../models/GraphDriveItem";
 
 interface GraphCollectionResponse<T> {
  value: T[];
@@ -300,5 +304,36 @@ export class GraphService {
     );
 
     return result.value ?? [];
+  }
+
+  /**
+  * Retrieve the root-level files and folders
+  * from a Microsoft Graph drive.
+  */
+  public async getDriveRootItems(
+  incomingAccessToken: string,
+  driveId: string
+  ): Promise<GraphDriveItem[]> {
+  if (!driveId) {
+    throw new Error(
+      "A Microsoft Graph drive ID is required."
+    );
+  }
+  const encodedDriveId =
+    encodeURIComponent(driveId);
+  const graphUrl =
+    `https://graph.microsoft.com/v1.0/drives/` +
+    `${encodedDriveId}/root/children` +
+    "?$select=id,name,webUrl,size," +
+    "createdDateTime,lastModifiedDateTime," +
+    "file,folder,createdBy,lastModifiedBy";
+  const result =
+    await this.graphGet<
+      GraphCollectionResponse<GraphDriveItem>
+  >(
+      graphUrl,
+      incomingAccessToken
+    );
+  return result.value ?? [];
   }
 }
