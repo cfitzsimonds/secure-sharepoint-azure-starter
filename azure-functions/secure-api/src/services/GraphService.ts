@@ -206,29 +206,99 @@ export class GraphService {
   * for a SharePoint site.
   */
   public async getSiteDrives(
-  incomingAccessToken: string,
-  siteId: string
+    incomingAccessToken: string,
+    siteId: string
   ): Promise<GraphDrive[]> {
-  if (!siteId) {
-    throw new Error(
-      "A Microsoft Graph site ID is required."
+    if (!siteId) {
+      throw new Error(
+        "A Microsoft Graph site ID is required."
+      );
+    }
+
+    console.log("SITE ID:", siteId);
+
+    const graphUrl =
+      `https://graph.microsoft.com/v1.0/sites/` +
+      `${siteId}/drives` +
+      "?$select=id,name,description,webUrl," +
+      "driveType,createdDateTime,lastModifiedDateTime," +
+      "createdBy,lastModifiedBy";
+
+    console.log("GRAPH URL:", graphUrl);
+
+    const result =
+      await this.graphGet<
+        GraphCollectionResponse<GraphDrive>
+      >(
+        graphUrl,
+        incomingAccessToken
+      );
+
+    console.log("GRAPH RESULT:", result);
+    console.log(
+      "DRIVE COUNT:",
+      result.value?.length ?? 0
     );
+
+    console.log(
+      "DRIVES:",
+      result.value?.map(drive => ({
+        id: drive.id,
+        name: drive.name,
+        driveType: drive.driveType,
+        webUrl: drive.webUrl
+      }))
+    );
+
+    return result.value ?? [];
   }
-  const encodedSiteId =
-    encodeURIComponent(siteId);
-  const graphUrl =
-    `https://graph.microsoft.com/v1.0/sites/` +
-    `${encodedSiteId}/drives` +
-    "?$select=id,name,description,webUrl," +
-    "driveType,createdDateTime,lastModifiedDateTime," +
-    "createdBy,lastModifiedBy";
-  const result =
-    await this.graphGet<
-      GraphCollectionResponse<GraphDrive>
-  >(
-      graphUrl,
-      incomingAccessToken
+
+  public async getSiteLists(
+    incomingAccessToken: string,
+    siteId: string
+  ): Promise<any[]> {
+    if (!siteId) {
+      throw new Error(
+        "A Microsoft Graph site ID is required."
+      );
+    }
+
+    const graphUrl =
+      `https://graph.microsoft.com/v1.0/sites/` +
+      `${siteId}/lists` +
+      "?$select=id,name,displayName,webUrl,list,system";
+
+    console.log(
+      "LIST GRAPH URL:",
+      graphUrl
     );
-  return result.value ?? [];
+
+    const result =
+      await this.graphGet<
+        GraphCollectionResponse<any>
+      >(
+        graphUrl,
+        incomingAccessToken
+      );
+
+    console.log(
+      "LIST COUNT:",
+      result.value?.length ?? 0
+    );
+
+    console.log(
+      "LISTS:",
+      result.value?.map(item => ({
+        id: item.id,
+        name: item.name,
+        displayName: item.displayName,
+        webUrl: item.webUrl,
+        template: item.list?.template,
+        hidden: item.list?.hidden,
+        system: item.system
+      }))
+    );
+
+    return result.value ?? [];
   }
 }

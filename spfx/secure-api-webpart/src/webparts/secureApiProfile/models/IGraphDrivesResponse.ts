@@ -1,30 +1,21 @@
-export interface IGraphDrive {
+export interface IGraphDocumentLibrary {
   id: string;
-  name: string;
-  description?: string;
+  name?: string;
+  displayName?: string;
   webUrl?: string;
-  driveType?: string;
-  createdDateTime?: string;
-  lastModifiedDateTime?: string;
-  createdBy?: {
-    user?: {
-      displayName?: string;
-      id?: string;
-    };
-  };
-  lastModifiedBy?: {
-    user?: {
-      displayName?: string;
-      id?: string;
-    };
+
+  list?: {
+    template?: string;
+    hidden?: boolean;
   };
 }
 
 export interface IGraphDrivesResponse {
   success: boolean;
   message: string;
-  drives: IGraphDrive[];
+
+  libraries: IGraphDocumentLibrary[];
+
   correlationId: string;
   timestampUtc: string;
 }
- 

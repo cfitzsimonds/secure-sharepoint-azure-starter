@@ -25,12 +25,14 @@ export async function getGraphDrives(
     request.headers.get(
       "x-correlation-id"
     ) ?? randomUUID();
-    context.log(
-        "GetGraphDrives request received.",
-        {
-            correlationId
-        }
-    );
+
+  context.log(
+    "GetGraphDrives request received.",
+    {
+      correlationId
+    }
+  );
+
   try {
     /*
      * Get the Graph site ID from
@@ -38,6 +40,7 @@ export async function getGraphDrives(
      */
     const siteId =
       request.query.get("siteId");
+
     if (!siteId) {
       return {
         status: 400,
@@ -57,6 +60,7 @@ export async function getGraphDrives(
         }
       };
     }
+
     /*
      * Retrieve the original Entra
      * access token representing
@@ -67,18 +71,51 @@ export async function getGraphDrives(
         .getIncomingAccessToken(
           request
         );
+
     /*
-     * Use Microsoft Graph to retrieve
-     * the site's document libraries.
+     * Create the Graph service.
      */
     const graphService =
       new GraphService();
+
+    /*
+     * Get document libraries using
+     * the existing /drives call.
+     */
     const drives =
       await graphService
         .getSiteDrives(
           incomingAccessToken,
           siteId
         );
+
+    /*
+     * Diagnostic test:
+     * also retrieve all SharePoint
+     * lists/libraries using /lists.
+     */
+    const lists =
+      await graphService
+        .getSiteLists(
+          incomingAccessToken,
+          siteId
+        );
+
+    /*
+     * From the /lists response,
+     * find only items Graph identifies
+     * as document libraries.
+     */
+    const documentLibrariesFromLists =
+      lists.filter(
+        item =>
+          item.list?.template === "documentLibrary" ||
+          item.list?.template === "webPageLibrary"
+      );
+
+    /*
+     * Log the normal /drives result.
+     */
     context.log(
       "Microsoft Graph drives retrieved.",
       {
@@ -88,16 +125,61 @@ export async function getGraphDrives(
           drives.length
       }
     );
-    const response:
-      GraphDrivesResponse = {
-        success: true,
-        message:
-          `Retrieved ${drives.length} document libraries from Microsoft Graph.`,
-        drives,
+
+    /*
+     * Log the /lists diagnostic result.
+     */
+    context.log(
+      "Microsoft Graph lists retrieved.",
+      {
         correlationId,
-        timestampUtc:
-          new Date().toISOString()
-      };
+        siteId,
+        listCount:
+          lists.length,
+        documentLibraryCount:
+          documentLibrariesFromLists.length
+      }
+    );
+
+    /*
+     * Log the actual libraries found
+     * through the /lists endpoint.
+     */
+    context.log(
+      "DOCUMENT LIBRARIES FROM LISTS:",
+      documentLibrariesFromLists.map(
+        item => ({
+          id: item.id,
+          name: item.name,
+          displayName:
+            item.displayName,
+          webUrl:
+            item.webUrl,
+          template:
+            item.list?.template,
+          hidden:
+            item.list?.hidden
+        })
+      )
+    );
+
+    /*
+     * Keep returning the original
+     * drives result for now.
+     *
+     * This means the SharePoint UI
+     * behavior will not change yet.
+     */
+    const response = {
+      success: true,
+      message:
+        `Retrieved ${documentLibrariesFromLists.length} document libraries from Microsoft Graph.`,
+      libraries: documentLibrariesFromLists,
+      correlationId,
+      timestampUtc:
+        new Date().toISOString()
+    };
+
     return {
       status: 200,
       headers: {
@@ -109,11 +191,13 @@ export async function getGraphDrives(
       jsonBody:
         response
     };
+
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error
         ? error.message
         : "An unexpected error occurred.";
+
     context.error(
       "GetGraphDrives failed.",
       {
@@ -121,6 +205,7 @@ export async function getGraphDrives(
         errorMessage
       }
     );
+
     return {
       status: 500,
       headers: {

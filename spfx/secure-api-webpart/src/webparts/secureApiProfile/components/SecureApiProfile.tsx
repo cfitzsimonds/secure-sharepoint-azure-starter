@@ -341,106 +341,92 @@ export default class SecureApiProfile
 
         {this.state.drivesResponse && (
           <div className={styles.result}>
-          <h3>
+
+            <h3>
               Document libraries retrieved
-          </h3>
+            </h3>
 
-          <p>
-              {
-                this.state
-                  .drivesResponse
-                  .message
-              }
-          </p>
+            <p>
+              {this.state.drivesResponse.message}
+            </p>
 
-            {
-              this.state
-                .drivesResponse
-                .drives
-                .length === 0
-                ? (
-          <p>
-                    No document libraries were returned.
-          </p>
-                )
-                : (
-          <table>
-          <thead>
-          <tr>
-          <th>
-                          Library
-          </th>
-          <th>
-                          Type
-          </th>
-          <th>
-                          Last modified
-          </th>
-          <th>
-                          Drive ID
-          </th>
-          </tr>
-          </thead>
+            {this.state.drivesResponse.libraries.length === 0 ? (
+              <p>
+                No document libraries were returned.
+              </p>
+            ) : (
+              <table>
 
-          <tbody>
-                      {
-                        this.state
-                          .drivesResponse
-                          .drives
-                          .map(
-                            drive => (
-          <tr
-                                key={
-          drive.id
-                                }
-          >
-          <td>
-                                  {
-                                    drive.webUrl
-                                      ? (
-          <a
-                                          href={
-                                            drive.webUrl
-                                          }
-                                          target="_blank"
-                                          rel="noreferrer"
-          >
-                                          {
-                                            drive.name
-                                          }
-          </a>
-                                      )
-                                      : drive.name
-                                  }
-          </td>
+                <thead>
+                  <tr>
+                    <th>
+                      Library
+                    </th>
 
-          <td>
-                                  {
-                                    drive.driveType
-                                    ?? "Not available"
-                                  }
-          </td>
+                    <th>
+                      Template
+                    </th>
 
-          <td>
-                                  {
-                                    drive.lastModifiedDateTime
-                                    ?? "Not available"
-                                  }
-          </td>
+                    <th>
+                      Hidden
+                    </th>
 
-          <td>
-                                  {
-          drive.id
-                                  }
-          </td>
-          </tr>
-                            )
-                          )
-                      }
-          </tbody>
-          </table>
-                )
-            }
+                    <th>
+                      Graph ID
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  {this.state.drivesResponse.libraries.map(
+                    library => (
+
+                      <tr key={library.id}>
+
+                        <td>
+                          {library.webUrl ? (
+                            <a
+                              href={library.webUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {library.displayName ??
+                                library.name ??
+                                "Unnamed library"}
+                            </a>
+                          ) : (
+                            library.displayName ??
+                            library.name ??
+                            "Unnamed library"
+                          )}
+                        </td>
+
+                        <td>
+                          {library.list?.template ??
+                            "Not available"}
+                        </td>
+
+                        <td>
+                          {library.list?.hidden
+                            ? "Yes"
+                            : "No"}
+                        </td>
+
+                        <td>
+                          {library.id}
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+            )}
+
           </div>
         )}
 
